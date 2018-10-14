@@ -2,7 +2,6 @@
 
 ## General
 
-* generaliza front page image
 * make texts variable
 * integrate partypi version in DB and implement DB mirgration for updates where necessary
 
@@ -43,4 +42,6 @@
 
 Done
 ===========================
+
 * store images with {uuid}.jpg on disc, and save filename in db
+* generaliza front page image
