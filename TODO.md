@@ -2,8 +2,7 @@
 
 ## General
 
-* make texts variable
-* integrate partypi version in DB and implement DB mirgration for updates where necessary
+* implement DB mirgration for updates where necessary
 
 ## Photos
 
@@ -45,3 +44,5 @@ Done
 
 * store images with {uuid}.jpg on disc, and save filename in db
 * generaliza front page image
+* make texts variable
+* DB version check
