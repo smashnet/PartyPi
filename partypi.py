@@ -1,4 +1,5 @@
 import os, os.path
+import sys
 from datetime import datetime
 import random
 import string
@@ -12,8 +13,9 @@ except ImportError: import json
 import hashlib
 from PIL import Image, ExifTags
 
-DB_STRING = "data/data.db"
-PHOTO_DIR = "data/img"
+DB_STRING = os.path.abspath(os.getcwd()) + "/data/data.db"
+PHOTO_DIR = os.path.abspath(os.getcwd()) + "/data/img"
+VERSION = "0.0.1"
 
 class PartyPi(object):
   @cherrypy.expose
@@ -53,13 +55,13 @@ class PhotoUploadService(object):
 
     
     if not self.imageExists(res['md5']):
-      written_file = open("data/img/%s" % res["filename"], "wb") # open file in write bytes mode
+      written_file = open(PHOTO_DIR + "/%s" % res["filename"], "wb") # open file in write bytes mode
       written_file.write(whole_data) # write file
       print(res)
       
       # Rotate image based on exif orientation
       try:
-        image=Image.open("data/img/%s" % res["filename"])
+        image=Image.open(PHOTO_DIR + "/%s" % res["filename"])
         for orientation in ExifTags.TAGS.keys():
           if ExifTags.TAGS[orientation]=='Orientation':
             break
@@ -71,7 +73,7 @@ class PhotoUploadService(object):
           image=image.rotate(270, expand=True)
         elif exif[orientation] == 8:
           image=image.rotate(90, expand=True)
-        image.save("data/img/%s" % file.filename)
+        image.save(PHOTO_DIR + "/%s" % file.filename)
         image.close()
 
       except (AttributeError, KeyError, IndexError):
@@ -128,7 +130,7 @@ class PhotoWebService(object):
         if filename is None:
           return {"error": "The photo with the provided id does not exist"}
       try:
-        os.remove("data/img/%s" % str(filename[0]))
+        os.remove(PHOTO_DIR + "/%s" % str(filename[0]))
       except FileNotFoundError:
         print("File %s already gone" % str(filename[0]))
       
@@ -200,11 +202,28 @@ def setup():
     os.makedirs(PHOTO_DIR)
 
   '''
-  Create the 'files' and 'subscribers' tables in the database on server startup, if not existing yet
+  Create the 'general', 'files' and 'subscribers' tables in the database on server startup, if not existing yet
   '''
   with sqlite3.connect(DB_STRING) as con:
+    con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
     con.execute("CREATE TABLE IF NOT EXISTS files (fileID, filename, filename_orig, content_type, md5, uploader, dateUploaded)")
     con.execute("CREATE TABLE IF NOT EXISTS subscribers (userID, email, ip, dateSubsribed)")
+
+  '''
+  Check DB version
+  '''
+  with sqlite3.connect(DB_STRING) as con:
+    r = con.execute("SELECT value FROM general WHERE key='version' LIMIT 1")
+    res = r.fetchall()
+    if len(res) == 0:
+      con.execute("INSERT INTO general VALUES (?, ?)", ["version", VERSION])
+    elif VERSION == res[0][0]:
+      # Program and DB run same version, everything OK!
+      pass
+    else:
+      # Different versions! Please migrate!
+      # TODO
+      sys.exit(100)
 
   
 if __name__ == '__main__':
