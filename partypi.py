@@ -223,6 +223,7 @@ def setup():
     else:
       # Different versions! Please migrate!
       # TODO
+      print("Running PartyPi v? with DB v?! Exiting...", (VERSION, res[0][0]))
       sys.exit(100)
 
   
