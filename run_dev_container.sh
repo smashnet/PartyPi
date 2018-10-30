@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo docker run --rm --network=host -v $(pwd):/usr/src/app -w /usr/src/app partypi-dev
+sudo docker run --rm -p 8081:8080 -v $(pwd):/usr/src/app -w /usr/src/app partypi-dev
