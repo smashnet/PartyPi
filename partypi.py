@@ -116,6 +116,28 @@ class PhotoUploadService(object):
       return res
 
 @cherrypy.expose
+class ThumbnailService(object):
+ 
+  @cherrypy.tools.accept(media='application/json')
+  def GET(self, photouuid=None, size='512px'):
+    # Check if is valid uuid
+    try:
+      res = uuid.UUID(photouuid, version=4)
+    except ValueError:
+      return "Not a valid uuid"
+
+    # Check if is valid size
+    if size == "128px" or size == "512px" or size == "1024px":
+      # Get file information from DB
+      with sqlite3.connect(DB_STRING) as c:
+        r = c.execute("SELECT * FROM files WHERE fileID=?", (str(photouuid),))
+        res = r.fetchone()
+        fn, filext = os.path.splitext(res[1])
+        with open(PHOTO_THUMBS_DIR + "/%s_%s%s" % (photouuid, size, filext), "rb") as the_file:
+          cherrypy.response.headers['Content-Type'] = 'image/jpeg'
+          return the_file.read()
+
+@cherrypy.expose
 class PhotoWebService(object):
 
   @cherrypy.tools.accept(media='application/json')
@@ -264,6 +286,9 @@ if __name__ == '__main__':
           'tools.response_headers.on': True,
           'tools.response_headers.headers': [('Content-Type', 'application/json')],
       },
+      '/thumbnail': {
+          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
+      },
       '/photoupload': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher()
           #'tools.response_headers.on': True,
@@ -286,6 +311,7 @@ if __name__ == '__main__':
 
   webapp = PartyPi()
   webapp.photos = PhotoWebService()
+  webapp.thumbnail = ThumbnailService()
   webapp.photoupload = PhotoUploadService()
   webapp.subscription = SubscriptionService()
   cherrypy.quickstart(webapp, '/', conf)
