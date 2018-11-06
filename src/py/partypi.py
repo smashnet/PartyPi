@@ -1,3 +1,15 @@
+'''
+partypi.py
+
+Main file of PartyPi.
+
+Author: Nicolas Inden
+eMail: nico@smashnet.de
+GPG-Key-ID: B2F8AA17
+GPG-Fingerprint: A757 5741 FD1E 63E8 357D  48E2 3C68 AE70 B2F8 AA17
+License: MIT License
+'''
+
 import os, os.path
 import sys
 from datetime import datetime
@@ -13,10 +25,7 @@ except ImportError: import json
 import hashlib
 from PIL import Image, ExifTags
 
-DB_STRING = os.path.abspath(os.getcwd()) + "/data/data.db"
-PHOTO_DIR = os.path.abspath(os.getcwd()) + "/data/img"
-PHOTO_THUMBS_DIR = os.path.abspath(os.getcwd()) + "/data/img/thumbs"
-VERSION = "0.0.1"
+import config
 
 class PartyPi(object):
   @cherrypy.expose
@@ -27,7 +36,7 @@ class PartyPi(object):
 class PhotoUploadService(object):
 
   def imageExists(self, md5):
-    with sqlite3.connect(DB_STRING) as c:
+    with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT * FROM files WHERE md5=? LIMIT 1", (md5,))
       if len(r.fetchall()) == 0:
         return False
@@ -37,7 +46,7 @@ class PhotoUploadService(object):
   def rotateIfNecessary(self, img):
     # Rotate image based on exif orientation
     try:
-      image=Image.open(PHOTO_DIR + "/%s" % img)
+      image=Image.open(config.PHOTO_DIR + "/%s" % img)
       for orientation in ExifTags.TAGS.keys():
         if ExifTags.TAGS[orientation]=='Orientation':
           break
@@ -49,7 +58,7 @@ class PhotoUploadService(object):
         image=image.rotate(270, expand=True)
       elif exif[orientation] == 8:
         image=image.rotate(90, expand=True)
-      image.save(PHOTO_DIR + "/%s" % img)
+      image.save(config.PHOTO_DIR + "/%s" % img)
       image.close()
 
     except (AttributeError, KeyError, IndexError):
@@ -61,19 +70,19 @@ class PhotoUploadService(object):
     medium = 512, 512
     large = 1024, 1024
     fn, filext = os.path.splitext(img)
-    image = Image.open(PHOTO_DIR + "/%s" % img)
+    image = Image.open(config.PHOTO_DIR + "/%s" % img)
 
     thumb_small = image.copy()
     thumb_small.thumbnail(small)
-    thumb_small.save(PHOTO_THUMBS_DIR + "/%s_128px%s" %(fn, filext))
+    thumb_small.save(config.PHOTO_THUMBS_DIR + "/%s_128px%s" %(fn, filext))
 
     thumb_mid = image.copy()
     thumb_mid.thumbnail(medium)
-    thumb_mid.save(PHOTO_THUMBS_DIR + "/%s_512px%s" %(fn, filext))
+    thumb_mid.save(config.PHOTO_THUMBS_DIR + "/%s_512px%s" %(fn, filext))
 
     thumb_large = image.copy()
     thumb_large.thumbnail(large)
-    thumb_large.save(PHOTO_THUMBS_DIR + "/%s_1024px%s" %(fn, filext))
+    thumb_large.save(config.PHOTO_THUMBS_DIR + "/%s_1024px%s" %(fn, filext))
 
   @cherrypy.tools.json_out()
   def POST(self, file):
@@ -96,7 +105,7 @@ class PhotoUploadService(object):
 
 
     if not self.imageExists(res['md5']):
-      written_file = open(PHOTO_DIR + "/%s" % res["filename"], "wb") # open file in write bytes mode
+      written_file = open(config.PHOTO_DIR + "/%s" % res["filename"], "wb") # open file in write bytes mode
       written_file.write(whole_data) # write file
 
       # Rotate image if necessary
@@ -105,7 +114,7 @@ class PhotoUploadService(object):
       # Create thumbnails
       self.createThumbs(res['filename'])
 
-      with sqlite3.connect(DB_STRING) as c:
+      with sqlite3.connect(config.DB_STRING) as c:
         c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?)",
           [res['id'], res['filename'], res['filename_orig'], res['content_type'], res['md5'], res['uploader'], res['dateUploaded']])
 
@@ -122,18 +131,18 @@ class ThumbnailService(object):
   def GET(self, photouuid=None, size='512px'):
     # Check if is valid uuid
     try:
-      res = uuid.UUID(photouuid, version=4)
+      res = uuid.UUID(photouuid, VERSION=4)
     except ValueError:
       return "Not a valid uuid"
 
     # Check if is valid size
     if size == "128px" or size == "512px" or size == "1024px":
       # Get file information from DB
-      with sqlite3.connect(DB_STRING) as c:
+      with sqlite3.connect(config.DB_STRING) as c:
         r = c.execute("SELECT * FROM files WHERE fileID=?", (str(photouuid),))
         res = r.fetchone()
         fn, filext = os.path.splitext(res[1])
-        with open(PHOTO_THUMBS_DIR + "/%s_%s%s" % (photouuid, size, filext), "rb") as the_file:
+        with open(config.PHOTO_THUMBS_DIR + "/%s_%s%s" % (photouuid, size, filext), "rb") as the_file:
           cherrypy.response.headers['Content-Type'] = 'image/jpeg'
           return the_file.read()
 
@@ -143,7 +152,7 @@ class PhotoWebService(object):
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
   def GET(self, photoid='*', limit=0):
-    with sqlite3.connect(DB_STRING) as c:
+    with sqlite3.connect(config.DB_STRING) as c:
       if photoid == '*':
         if limit == 0:
           r = c.execute("SELECT * FROM files")
@@ -169,18 +178,18 @@ class PhotoWebService(object):
       return {"error": "No photos provided for deletion"}
     else:
       # Delete photos from storage
-      with sqlite3.connect(DB_STRING) as c:
+      with sqlite3.connect(config.DB_STRING) as c:
         r = c.execute("SELECT filename FROM files WHERE fileID=?", (str(photoid),))
         filename = r.fetchone()
         if filename is None:
           return {"error": "The photo with the provided id does not exist"}
       try:
-        os.remove(PHOTO_DIR + "/%s" % str(filename[0]))
+        os.remove(config.PHOTO_DIR + "/%s" % str(filename[0]))
       except FileNotFoundError:
         print("File %s already gone" % str(filename[0]))
 
       # Delete photos from DB
-      with sqlite3.connect(DB_STRING) as c:
+      with sqlite3.connect(config.DB_STRING) as c:
         c.execute("DELETE FROM files WHERE fileID=?", (str(photoid),))
 
 
@@ -190,7 +199,7 @@ class PhotoWebService(object):
 class SubscriptionService(object):
 
   def mailExists(self, mail):
-    with sqlite3.connect(DB_STRING) as c:
+    with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT * FROM subscribers WHERE mail=? LIMIT 1", (mail,))
       if len(r.fetchall()) == 0:
         return False
@@ -205,12 +214,12 @@ class SubscriptionService(object):
 
     # Check if is valid uuid
     try:
-      res = uuid.UUID(subscriberuuid, version=4)
+      res = uuid.UUID(subscriberuuid, VERSION=4)
     except ValueError:
       return {"error": "Not a UUID"}
 
     # Get subscriber information
-    with sqlite3.connect(DB_STRING) as c:
+    with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers WHERE userID=?", (str(subscriberuuid),))
       descs = [desc[0] for desc in r.description]
       intermediate = r.fetchall()
@@ -227,10 +236,10 @@ class SubscriptionService(object):
 
     # Check if mail already exists
     if not self.mailExists(res['mail']):
-      with sqlite3.connect(DB_STRING) as c:
+      with sqlite3.connect(config.DB_STRING) as c:
         c.execute("INSERT INTO subscribers VALUES (?, ?, ?, ?)",
           [res['id'], res['mail'], res['ip'], res['dateSubscribed']])
-          
+
       return res
     else:
       return {"error": "You already subscribed!"}
@@ -241,7 +250,7 @@ class SubscriptionService(object):
     if len(userid) == 0:
       return {"error": "No user provided for deletion"}
     else:
-      with sqlite3.connect(DB_STRING) as c:
+      with sqlite3.connect(config.DB_STRING) as c:
         c.execute("DELETE FROM subscribers WHERE userID=?", (str(userid),))
 
       return {"deleted": userid}
@@ -251,16 +260,16 @@ def setup():
   '''
   Create directories if not existing yet
   '''
-  if not os.path.exists(PHOTO_DIR):
-    os.makedirs(PHOTO_DIR)
+  if not os.path.exists(config.PHOTO_DIR):
+    os.makedirs(config.PHOTO_DIR)
 
-  if not os.path.exists(PHOTO_THUMBS_DIR):
-    os.makedirs(PHOTO_THUMBS_DIR)
+  if not os.path.exists(config.PHOTO_THUMBS_DIR):
+    os.makedirs(config.PHOTO_THUMBS_DIR)
 
   '''
   Create the 'general', 'files' and 'subscribers' tables in the database on server startup, if not existing yet
   '''
-  with sqlite3.connect(DB_STRING) as con:
+  with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
     con.execute("CREATE TABLE IF NOT EXISTS files (fileID, filename, filename_orig, content_type, md5, uploader, dateUploaded)")
     con.execute("CREATE TABLE IF NOT EXISTS subscribers (uuid, mail, ip, dateSubscribed)")
@@ -268,18 +277,18 @@ def setup():
   '''
   Check DB version
   '''
-  with sqlite3.connect(DB_STRING) as con:
+  with sqlite3.connect(config.DB_STRING) as con:
     r = con.execute("SELECT value FROM general WHERE key='version' LIMIT 1")
     res = r.fetchall()
     if len(res) == 0:
-      con.execute("INSERT INTO general VALUES (?, ?)", ["version", VERSION])
-    elif VERSION == res[0][0]:
+      con.execute("INSERT INTO general VALUES (?, ?)", ["version", config.VERSION])
+    elif config.VERSION == res[0][0]:
       # Program and DB run same version, everything OK!
       pass
     else:
       # Different versions! Please migrate!
       # TODO
-      print("Running PartyPi v? with DB v?! Exiting...", (VERSION, res[0][0]))
+      print("Running PartyPi v? with DB v?! Exiting...", (config.VERSION, res[0][0]))
       sys.exit(100)
 
 
