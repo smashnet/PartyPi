@@ -191,7 +191,7 @@ class SubscriptionService(object):
 
   def mailExists(self, mail):
     with sqlite3.connect(DB_STRING) as c:
-      r = c.execute("SELECT * FROM subscribers WHERE email=? LIMIT 1", (mail,))
+      r = c.execute("SELECT * FROM subscribers WHERE mail=? LIMIT 1", (mail,))
       if len(r.fetchall()) == 0:
         return False
       else:
@@ -199,19 +199,22 @@ class SubscriptionService(object):
 
   @cherrypy.tools.json_out()
   def GET(self, subscriberuuid=None):
+
+    if subscriberuuid is None:
+      return {"error": "No UUID"}
+
     # Check if is valid uuid
     try:
       res = uuid.UUID(subscriberuuid, version=4)
     except ValueError:
-      return {"error": "No UUID"}
+      return {"error": "Not a UUID"}
 
-    # Get all subscribers
+    # Get subscriber information
     with sqlite3.connect(DB_STRING) as c:
-      r = c.execute("SELECT * FROM subscribers")
+      r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers WHERE userID=?", (str(subscriberuuid),))
       descs = [desc[0] for desc in r.description]
       intermediate = r.fetchall()
       res = [dict(zip(descs, item)) for item in intermediate]
-      print(res)
       return res
 
   @cherrypy.tools.json_out()
@@ -227,11 +230,10 @@ class SubscriptionService(object):
       with sqlite3.connect(DB_STRING) as c:
         c.execute("INSERT INTO subscribers VALUES (?, ?, ?, ?)",
           [res['id'], res['mail'], res['ip'], res['dateSubscribed']])
-
-      res['message'] = 'Success!'
+          
       return res
     else:
-      return {"message": "You already subscribed!"}
+      return {"error": "You already subscribed!"}
 
   @cherrypy.tools.json_out()
   def DELETE(self, userid):
@@ -261,7 +263,7 @@ def setup():
   with sqlite3.connect(DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
     con.execute("CREATE TABLE IF NOT EXISTS files (fileID, filename, filename_orig, content_type, md5, uploader, dateUploaded)")
-    con.execute("CREATE TABLE IF NOT EXISTS subscribers (userID, email, ip, dateSubsribed)")
+    con.execute("CREATE TABLE IF NOT EXISTS subscribers (uuid, mail, ip, dateSubscribed)")
 
   '''
   Check DB version
@@ -290,20 +292,18 @@ if __name__ == '__main__':
       '/photos': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
           'tools.response_headers.on': True,
-          'tools.response_headers.headers': [('Content-Type', 'application/json')],
+          'tools.response_headers.headers': [('Content-Type', 'application/json')]
       },
       '/thumbnail': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher()
       },
       '/photoupload': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher()
-          #'tools.response_headers.on': True,
-          #'tools.response_headers.headers': [('Content-Type', 'application/json')],
       },
       '/subscription': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
           'tools.response_headers.on': True,
-          'tools.response_headers.headers': [('Content-Type', 'application/json')],
+          'tools.response_headers.headers': [('Content-Type', 'application/json')]
       },
       '/static': {
           'tools.staticdir.on': True,
