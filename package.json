@@ -1,0 +1,24 @@
+{
+  "name": "partypi",
+  "version": "0.0.1",
+  "description": "tbd",
+  "main": "index.js",
+  "scripts": {
+    "start": "faucet --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smashnet/PartyPi.git"
+  },
+  "author": "Nicolas Inden",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smashnet/PartyPi/issues"
+  },
+  "homepage": "https://github.com/smashnet/PartyPi#readme",
+  "dependencies": {
+    "dropzone": "^5.5.1",
+    "faucet-pipeline-js": "^1.0.0"
+  }
+}
