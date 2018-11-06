@@ -21,7 +21,7 @@ VERSION = "0.0.1"
 class PartyPi(object):
   @cherrypy.expose
   def index(self):
-    return open('html/index.html')
+    return open('src/html/index.html')
 
 @cherrypy.expose
 class PhotoUploadService(object):
