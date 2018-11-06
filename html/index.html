@@ -3,26 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="PartyPi - A local photo upload web app to collect images to be instantly shown on screen">
+    <meta name="description" content="PartyPi - A photo upload web app to collect images to be instantly shown on screen">
     <meta name="author" content="Nicolas Inden">
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/static/css/basic.min.css" />
     <link rel="stylesheet" href="/static/css/dropzone.min.css" />
-    <script src="/static/js/dropzone.min.js"></script>
-    <script>
-      Dropzone.options.partyUpload = {
-        acceptedFiles: 'image/*',
-        maxFilesize: 7
-      };
-
-      function submitMail() {
-        var button = document.getElementById("submitButton");
-        button.classList.remove('btn-primary');
-        button.classList.add('btn-success');
-        button.setAttribute('disabled', '');
-        button.innerHTML = 'Erledigt!';
-      };
-    </script>
     <style>
       .hide { position:absolute; top:-1px; left:-1px; width:1px; height:1px; }
     </style>
@@ -46,7 +30,7 @@
         <hr class="my-4">
         <!-- Register for photo retrieval -->
         <p class="lead text-center">Du möchtest nach der Party alle Bilder haben? Kein Problem, einfach hier deine E-Mail-Adresse eintragen, und du bekommst bald einen Download-Link zugeschickt!</p>
-        <form action="/subscription" method="post" id="mailSendForm" target="hiddenFrame" onsubmit="submitMail()">
+        <form action="/subscription" method="post" id="mailSendForm" target="hiddenFrame" class="hasSubmitButton">
           <div class="form-group">
             <label for="inputEmail">E-Mail-Adresse</label>
             <input type="email" class="form-control" id="inputEmail" name="mailaddress" aria-describedby="emailHelp" placeholder="Gebe hier deine E-Mail-Adresse ein">
@@ -60,5 +44,7 @@
     <footer>
       <center>PartyPi (c) 2018 Nicolas Inden</center>
     </footer>
+
+    <script src="/static/js/app.js"></script>
   </body>
 </html>

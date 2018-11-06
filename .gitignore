@@ -1,6 +1,3 @@
-# PartyPi data path
-data/
-
 # SWP files from vim
 *.swp
 
@@ -108,3 +105,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+/node_modules
+/static/js
+/data

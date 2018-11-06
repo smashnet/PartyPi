@@ -66,11 +66,11 @@ class PhotoUploadService(object):
     thumb_small = image.copy()
     thumb_small.thumbnail(small)
     thumb_small.save(PHOTO_THUMBS_DIR + "/%s_128px%s" %(fn, filext))
-    
+
     thumb_mid = image.copy()
     thumb_mid.thumbnail(medium)
     thumb_mid.save(PHOTO_THUMBS_DIR + "/%s_512px%s" %(fn, filext))
-    
+
     thumb_large = image.copy()
     thumb_large.thumbnail(large)
     thumb_large.save(PHOTO_THUMBS_DIR + "/%s_1024px%s" %(fn, filext))
@@ -94,21 +94,21 @@ class PhotoUploadService(object):
     fn, filext = os.path.splitext(file.filename)
     res = {"id": img_uuid, "filename_orig": file.filename, "filename": '%s%s' % (img_uuid, filext), "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "dateUploaded": str(datetime.utcnow())}
 
-    
+
     if not self.imageExists(res['md5']):
       written_file = open(PHOTO_DIR + "/%s" % res["filename"], "wb") # open file in write bytes mode
       written_file.write(whole_data) # write file
 
-      # Rotate image if necessary      
+      # Rotate image if necessary
       self.rotateIfNecessary(res['filename'])
 
       # Create thumbnails
       self.createThumbs(res['filename'])
 
       with sqlite3.connect(DB_STRING) as c:
-        c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?)", 
+        c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?)",
           [res['id'], res['filename'], res['filename_orig'], res['content_type'], res['md5'], res['uploader'], res['dateUploaded']])
-    
+
       return res
     else:
       res = {"error": "Image already existing!"}
@@ -117,7 +117,7 @@ class PhotoUploadService(object):
 
 @cherrypy.expose
 class ThumbnailService(object):
- 
+
   @cherrypy.tools.accept(media='application/json')
   def GET(self, photouuid=None, size='512px'):
     # Check if is valid uuid
@@ -149,7 +149,7 @@ class PhotoWebService(object):
           r = c.execute("SELECT * FROM files")
         else:
           r = c.execute("SELECT * FROM files LIMIT ?", (int(limit),))
-          
+
       else:
         if limit == 0:
           r = c.execute("SELECT * FROM files WHERE fileID=?", (str(photoid),))
@@ -161,7 +161,7 @@ class PhotoWebService(object):
       res = [dict(zip(descs, item)) for item in intermediate]
       print(res)
       return res
-  
+
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
   def DELETE(self, photoid):
@@ -178,11 +178,11 @@ class PhotoWebService(object):
         os.remove(PHOTO_DIR + "/%s" % str(filename[0]))
       except FileNotFoundError:
         print("File %s already gone" % str(filename[0]))
-      
+
       # Delete photos from DB
       with sqlite3.connect(DB_STRING) as c:
         c.execute("DELETE FROM files WHERE fileID=?", (str(photoid),))
-      
+
 
       return {"deleted": photoid}
 
@@ -198,7 +198,13 @@ class SubscriptionService(object):
         return True
 
   @cherrypy.tools.json_out()
-  def GET(self):
+  def GET(self, subscriberuuid=None):
+    # Check if is valid uuid
+    try:
+      res = uuid.UUID(subscriberuuid, version=4)
+    except ValueError:
+      return {"error": "No UUID"}
+
     # Get all subscribers
     with sqlite3.connect(DB_STRING) as c:
       r = c.execute("SELECT * FROM subscribers")
@@ -207,7 +213,7 @@ class SubscriptionService(object):
       res = [dict(zip(descs, item)) for item in intermediate]
       print(res)
       return res
-  
+
   @cherrypy.tools.json_out()
   def POST(self, mailaddress):
     # Check mail validity
@@ -219,9 +225,9 @@ class SubscriptionService(object):
     # Check if mail already exists
     if not self.mailExists(res['mail']):
       with sqlite3.connect(DB_STRING) as c:
-        c.execute("INSERT INTO subscribers VALUES (?, ?, ?, ?)", 
+        c.execute("INSERT INTO subscribers VALUES (?, ?, ?, ?)",
           [res['id'], res['mail'], res['ip'], res['dateSubscribed']])
-    
+
       res['message'] = 'Success!'
       return res
     else:
@@ -234,7 +240,7 @@ class SubscriptionService(object):
       return {"error": "No user provided for deletion"}
     else:
       with sqlite3.connect(DB_STRING) as c:
-        c.execute("DELETE FROM subscribers WHERE userID=?", (str(userid),))  
+        c.execute("DELETE FROM subscribers WHERE userID=?", (str(userid),))
 
       return {"deleted": userid}
 
@@ -274,7 +280,7 @@ def setup():
       print("Running PartyPi v? with DB v?! Exiting...", (VERSION, res[0][0]))
       sys.exit(100)
 
-  
+
 if __name__ == '__main__':
   conf = {
       '/': {
