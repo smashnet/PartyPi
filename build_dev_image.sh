@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo docker build -t partypi-dev .
+docker build -t partypi-dev .
