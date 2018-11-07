@@ -1,7 +1,7 @@
 '''
-partypi.py
+photo_service.py
 
-Main file of PartyPi.
+Photo service of PartyPi that receives new photos and serves them.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de

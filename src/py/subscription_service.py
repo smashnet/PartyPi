@@ -1,7 +1,7 @@
 '''
-partypi.py
+subscription_service.py
 
-Main file of PartyPi.
+PartyPis subscription service is responsible for holding subscriber information.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
