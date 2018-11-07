@@ -22,7 +22,7 @@ npm start
 python3 ./src/py/partypi.py
 ```
 
-## Using docker
+## Using docker as dev environment
 Build dev image:
 ```bash
 ./build_dev_image.sh
