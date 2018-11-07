@@ -131,7 +131,7 @@ class ThumbnailService(object):
   def GET(self, photouuid=None, size='512px'):
     # Check if is valid uuid
     try:
-      res = uuid.UUID(photouuid, VERSION=4)
+      res = uuid.UUID(photouuid, version=4)
     except ValueError:
       return "Not a valid uuid"
 
@@ -206,25 +206,40 @@ class SubscriptionService(object):
       else:
         return True
 
+  def getAllSubscribers(self):
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers")
+      descs = [desc[0] for desc in r.description]
+      intermediate = r.fetchall()
+      res = [dict(zip(descs, item)) for item in intermediate]
+      return res
+
+  def getSingleSubscriber(self, uuid):
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers WHERE uuid=?", (str(uuid),))
+      descs = [desc[0] for desc in r.description]
+      intermediate = r.fetchall()
+      res = [dict(zip(descs, item)) for item in intermediate]
+      return res
+
   @cherrypy.tools.json_out()
   def GET(self, subscriberuuid=None):
 
     if subscriberuuid is None:
       return {"error": "No UUID"}
 
+    # If parameter is "all" return all subscriptions
+    if subscriberuuid == "all":
+      return self.getAllSubscribers()
+
     # Check if is valid uuid
     try:
-      res = uuid.UUID(subscriberuuid, VERSION=4)
+      res = uuid.UUID(subscriberuuid, version=4)
     except ValueError:
       return {"error": "Not a UUID"}
 
-    # Get subscriber information
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers WHERE userID=?", (str(subscriberuuid),))
-      descs = [desc[0] for desc in r.description]
-      intermediate = r.fetchall()
-      res = [dict(zip(descs, item)) for item in intermediate]
-      return res
+    # Return single subscriber information
+    return self.getSingleSubscriber(subscriberuuid)
 
   @cherrypy.tools.json_out()
   def POST(self, mailaddress):
