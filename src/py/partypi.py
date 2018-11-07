@@ -22,9 +22,18 @@ from photo_service import PhotoService
 from subscription_service import SubscriptionService
 
 class PartyPi(object):
+
+  @cherrypy.expose
+  def default(self, *args, **kwargs):
+    return open('src/html/404.html')
+
   @cherrypy.expose
   def index(self):
     return open('src/html/index.html')
+
+  @cherrypy.expose
+  def admin(self):
+    return open('src/html/photos_admin.html')
 
 
 def setup():
