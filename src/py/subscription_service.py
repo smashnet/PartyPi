@@ -18,6 +18,7 @@ import cherrypy
 import sqlite3
 
 import config
+import common
 
 @cherrypy.expose
 class SubscriptionService(object):
@@ -33,18 +34,16 @@ class SubscriptionService(object):
   def getAllSubscribers(self):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers")
-      descs = [desc[0] for desc in r.description]
-      intermediate = r.fetchall()
-      res = [dict(zip(descs, item)) for item in intermediate]
-      return res
+      return common.DBtoDict(r)
 
   def getSingleSubscriber(self, uuid):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers WHERE uuid=?", (str(uuid),))
-      descs = [desc[0] for desc in r.description]
-      intermediate = r.fetchall()
-      res = [dict(zip(descs, item)) for item in intermediate]
-      return res
+      res = common.DBtoDict(r)
+      if len(res) > 0:
+        return res[0]
+      else:
+        return {"error": "UUID unknown"}
 
   @cherrypy.tools.json_out()
   def GET(self, subscriberuuid=None):

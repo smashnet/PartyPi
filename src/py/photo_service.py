@@ -20,6 +20,7 @@ import hashlib
 from PIL import Image, ExifTags
 
 import config
+import common
 
 @cherrypy.expose
 class PhotoService(object):
@@ -76,18 +77,16 @@ class PhotoService(object):
   def getListOfAllPhotos(self):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT uuid, filename_orig, content_type, md5, uploader, dateUploaded FROM files")
-      descs = [desc[0] for desc in r.description]
-      intermediate = r.fetchall()
-      res = [dict(zip(descs, item)) for item in intermediate]
-      return res
+      return common.DBtoDict(r)
 
   def getSinglePhoto(self, photouuid):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT uuid, filename_orig, content_type, md5, uploader, dateUploaded FROM files WHERE uuid=?", (photouuid,))
-      descs = [desc[0] for desc in r.description]
-      intermediate = r.fetchall()
-      res = [dict(zip(descs, item)) for item in intermediate]
-      return res
+      res = common.DBtoDict(r)
+      if len(res) > 0:
+        return res[0]
+      else:
+        return {"error": "UUID unknown"}
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
