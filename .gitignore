@@ -108,4 +108,5 @@ venv.bak/
 
 /node_modules
 /static/js
+/static/css
 /data
