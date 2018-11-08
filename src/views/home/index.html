@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="jumbotron" style="width: 85%; margin: 0 auto">
+  <h1 class="display-6 text-center">PartyPi<br/>The party photo collector</h1>
+  <p class="lead text-center">Hallo und herzlich willkommen auf dieser großartigen Party!</p>
+  <img class="img-fluid rounded mx-auto d-block" src="/static/img/frontpage_1300px.jpg" width="80%" />
+  <hr class="my-4">
+  <p class="lead text-center">Ihr wollt eure frisch geschossenen Fotos direkt hier auf dem Bildschirm sehen? Dann ladet sie direkt hier hoch! Es ist auch ganz einfach ;)</p>
+  <div id="dropzone">
+    <form action="/photo" class="dropzone needsclick btn btn-primary btn-lg btn-block" id="partyUpload" style="background: cornflowerblue">
+      <div class="dz-message needsclick">
+        Bilder hochladen!
+      </div>
+    </form>
+  </div>
+
+  <hr class="my-4">
+  <!-- Register for photo retrieval -->
+  <p class="lead text-center">Du möchtest nach der Party alle Bilder haben? Kein Problem, einfach hier deine E-Mail-Adresse eintragen, und du bekommst bald einen Download-Link zugeschickt!</p>
+  <form action="/subscription" method="post" id="mailSendForm" target="hiddenFrame" class="hasSubmitButton">
+    <div class="form-group">
+      <label for="inputEmail">E-Mail-Adresse</label>
+      <input type="email" class="form-control" id="inputEmail" name="mailaddress" aria-describedby="emailHelp" placeholder="Gebe hier deine E-Mail-Adresse ein">
+      <small id="emailHelp" class="form-text text-muted">Deine E-Mail-Adresse bleibt natürlich unter uns. Ich benutze sie nur um dir den Download-Link zuzuschicken.</small>
+    </div>
+    <button type="submit" class="btn btn-primary" id="submitButton">Abschicken</button><br />
+  </form>
+  <iframe name="hiddenFrame" class="hide"></iframe>
+</div>
+{% endblock %}

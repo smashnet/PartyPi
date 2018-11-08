@@ -15,6 +15,7 @@ import sys
 
 import cherrypy
 import sqlite3
+from jinja2 import Environment, FileSystemLoader
 
 import config
 from thumbnail_service import ThumbnailService
@@ -23,17 +24,22 @@ from subscription_service import SubscriptionService
 
 class PartyPi(object):
 
+  def __init__(self):
+    self.fl = FileSystemLoader("src/views")
+    self.env = Environment(loader=self.fl)
+
   @cherrypy.expose
   def default(self, *args, **kwargs):
-    return open('src/html/404.html')
+    return open('src/views/404.html')
 
   @cherrypy.expose
   def index(self):
-    return open('src/html/index.html')
+    template = self.env.get_template("home/index.html")
+    return template.render()
 
   @cherrypy.expose
   def admin(self):
-    return open('src/html/photos_admin.html')
+    return open('src/views/photos_admin.html')
 
 
 def setup():
