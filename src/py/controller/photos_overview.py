@@ -22,6 +22,9 @@ class PhotosOverviewController(BaseController):
     # Collect photo thumburls
     template_vars = {}
     template_vars["photos"] = PhotoService.getListOfAllPhotos()
+    # Prune dateUploaded
+    for item in template_vars["photos"]:
+      item["dateUploaded"] = item["dateUploaded"].split('.')[0]
     template_vars["bodyclass"] = "class=main"
     print(template_vars)
     return self.render_template("photos_overview/index.html", template_vars)

@@ -111,7 +111,7 @@ class PhotoService(object):
       res = r.fetchone()
       fn, filext = os.path.splitext(res[1])
       with open(config.PHOTO_DIR + "/%s%s" % (photouuid, filext), "rb") as the_file:
-        cherrypy.response.headers['Content-Type'] = 'image/jpeg'
+        cherrypy.response.headers['Content-Type'] = res[3]
         return the_file.read()
 
   @cherrypy.tools.json_out()
