@@ -9,14 +9,13 @@
   height:1px;
 }
 
-.photoadmin {
+.main {
   $jumbotron-padding-y: 3rem;
 
   .jumbotron {
     padding-top: $jumbotron-padding-y;
     padding-bottom: $jumbotron-padding-y;
     margin-bottom: 0;
-    background-color: #fff;
   }
   @media (min-width: 768px) {
     .jumbotron {
@@ -29,12 +28,8 @@
     margin-bottom: 0;
   }
 
-  .jumbotron-heading {
-    font-weight: 300;
-  }
-
   .jumbotron .container {
-    max-width: 40rem;
+    max-width: 50rem;
   }
 
   footer {
@@ -46,4 +41,8 @@
     margin-bottom: .25rem;
   }
 
+}
+
+#partyUpload {
+  background: CornflowerBlue;
 }

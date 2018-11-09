@@ -15,18 +15,20 @@ import sys
 
 import cherrypy
 import sqlite3
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import config
-from thumbnail_service import ThumbnailService
-from photo_service import PhotoService
-from subscription_service import SubscriptionService
+
+# Import services
+from services.thumbnail_service import ThumbnailService
+from services.photo_service import PhotoService
+from services.subscription_service import SubscriptionService
+
+# Import controller
+from controller.home import HomeController
+from controller.admin import AdminController
 
 class PartyPi(object):
-
-  def __init__(self):
-    self.fl = FileSystemLoader("src/views")
-    self.env = Environment(loader=self.fl)
 
   @cherrypy.expose
   def default(self, *args, **kwargs):
@@ -34,13 +36,13 @@ class PartyPi(object):
 
   @cherrypy.expose
   def index(self):
-    template = self.env.get_template("home/index.html")
-    return template.render()
+    c = HomeController()
+    return c.index()
 
   @cherrypy.expose
   def admin(self):
-    return open('src/views/photos_admin.html')
-
+    c = AdminController()
+    return c.index()
 
 def setup():
   '''
