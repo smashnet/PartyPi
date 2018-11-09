@@ -21,6 +21,13 @@ import config
 @cherrypy.expose
 class ThumbnailService(object):
 
+  @staticmethod
+  def getThumbURLs():
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT uuid FROM files")
+      intermediate = r.fetchall()
+      return ["/thumbnail/%s" % item[0] for item in intermediate]
+
   @cherrypy.tools.accept(media='application/json')
   def GET(self, photouuid=None, size='512px'):
     # Check if is valid uuid

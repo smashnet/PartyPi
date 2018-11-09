@@ -25,6 +25,18 @@ import common
 @cherrypy.expose
 class PhotoService(object):
 
+  @staticmethod
+  def getListOfAllPhotos():
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT uuid, filename_orig, content_type, md5, uploader, dateUploaded FROM files")
+      res = common.DBtoDict(r)
+      for item in res:
+        # Add thumburl
+        item["thumburl"] = "/thumbnail/%s" % item["uuid"]
+        # Add photourl
+        item["photourl"] = "/photo/%s" % item["uuid"]
+      return res
+
   def imageExists(self, md5):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT * FROM files WHERE md5=? LIMIT 1", (md5,))
@@ -74,11 +86,7 @@ class PhotoService(object):
     thumb_large.thumbnail(large)
     thumb_large.save(config.PHOTO_THUMBS_DIR + "/%s_1024px%s" %(fn, filext))
 
-  def getListOfAllPhotos(self):
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, filename_orig, content_type, md5, uploader, dateUploaded FROM files")
-      return common.DBtoDict(r)
-
+  '''
   def getSinglePhoto(self, photouuid):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT uuid, filename_orig, content_type, md5, uploader, dateUploaded FROM files WHERE uuid=?", (photouuid,))
@@ -87,26 +95,24 @@ class PhotoService(object):
         return res[0]
       else:
         return {"error": "UUID unknown"}
+  '''
 
   @cherrypy.tools.accept(media='application/json')
-  @cherrypy.tools.json_out()
-  def GET(self, photouuid=None, limit=0):
-    # If no parameter is provided -> error
-    if photouuid is None:
-      return {"error": "No UUID"}
-
-    # If parameter is "all" return all subscriptions
-    if photouuid == "all":
-      return self.getListOfAllPhotos()
-
+  def GET(self, photouuid=None):
     # Check if is valid uuid
     try:
       uuid.UUID(photouuid, version=4)
     except ValueError:
-      return {"error": "Not a UUID"}
+      return "Not a valid uuid"
 
-    # Return single subscriber information
-    return self.getSinglePhoto(photouuid)
+    # Get file information from DB
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT * FROM files WHERE uuid=?", (str(photouuid),))
+      res = r.fetchone()
+      fn, filext = os.path.splitext(res[1])
+      with open(config.PHOTO_DIR + "/%s%s" % (photouuid, filext), "rb") as the_file:
+        cherrypy.response.headers['Content-Type'] = 'image/jpeg'
+        return the_file.read()
 
   @cherrypy.tools.json_out()
   def POST(self, file):

@@ -27,6 +27,7 @@ from services.subscription_service import SubscriptionService
 # Import controller
 from controller.home import HomeController
 from controller.admin import AdminController
+from controller.photos_overview import PhotosOverviewController
 
 class PartyPi(object):
 
@@ -37,6 +38,11 @@ class PartyPi(object):
   @cherrypy.expose
   def index(self):
     c = HomeController()
+    return c.index()
+
+  @cherrypy.expose
+  def overview(self):
+    c = PhotosOverviewController()
     return c.index()
 
   @cherrypy.expose

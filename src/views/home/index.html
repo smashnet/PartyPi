@@ -1,37 +1,35 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<section class="jumbotron text-center">
-  <div class="container">
-    <!--<h1 class="jumbotron-heading">PartyPi</h1>-->
-    <h2 class="jumbotron-heading">PartyPi</h2>
-    <!--<p class="lead text-muted">Hallo und herzlich willkommen auf dieser großartigen Party!</p>-->
-    <p class="lead text-center">Ihr wollt eure frisch geschossenen Fotos direkt hier auf dem Bildschirm sehen?<br/> Dann ladet sie direkt hier hoch! Es ist auch ganz einfach ;)</p>
-    <div id="dropzone">
-      <form action="/photo" id="partyUpload" class="dropzone needsclick btn btn-primary btn-lg btn-block">
-        <div class="dz-message needsclick">
-          Bilder hochladen!
+      <section class="jumbotron text-center">
+        <div class="container">
+          <h2 class="jumbotron-heading">PartyPi</h2>
+          <p class="lead text-center">Ihr wollt eure frisch geschossenen Fotos direkt hier auf dem Bildschirm sehen?<br/> Dann ladet sie direkt hier hoch! Es ist auch ganz einfach ;)</p>
+          <div id="dropzone">
+            <form action="/photo" id="partyUpload" class="dropzone needsclick btn btn-primary btn-lg btn-block">
+              <div class="dz-message needsclick">
+                Bilder hochladen!
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-</section>
+      </section>
 
-<div class="album py-5 bg-light">
-  <div class="container">
-    <!-- Register for photo retrieval -->
-    <p class="lead text-center">Du möchtest nach der Party alle Bilder haben?<br/> Kein Problem, einfach hier deine E-Mail-Adresse eintragen, und du bekommst bald einen Download-Link zugeschickt!</p>
-    <hr class="my-4">
-    <form action="/subscription" method="post" id="mailSendForm" target="hiddenFrame" class="hasSubmitButton">
-      <div class="form-group">
-        <label for="inputEmail">E-Mail-Adresse</label>
-        <input type="email" class="form-control" id="inputEmail" name="mailaddress" aria-describedby="emailHelp" placeholder="Gebe hier deine E-Mail-Adresse ein">
-        <small id="emailHelp" class="form-text text-muted">Deine E-Mail-Adresse bleibt natürlich unter uns. Ich benutze sie nur um dir den Download-Link zuzuschicken.</small>
+      <div class="album py-5 bg-light">
+        <div class="container">
+          <!-- Register for photo retrieval -->
+          <p class="lead text-center">Du möchtest nach der Party alle Bilder haben?<br/> Kein Problem, einfach hier deine E-Mail-Adresse eintragen, und du bekommst bald einen Download-Link zugeschickt!</p>
+          <hr class="my-4">
+          <form action="/subscription" method="post" id="mailSendForm" target="hiddenFrame" class="hasSubmitButton">
+            <div class="form-group">
+              <label for="inputEmail">E-Mail-Adresse</label>
+              <input type="email" class="form-control" id="inputEmail" name="mailaddress" aria-describedby="emailHelp" placeholder="Gebe hier deine E-Mail-Adresse ein">
+              <small id="emailHelp" class="form-text text-muted">Deine E-Mail-Adresse bleibt natürlich unter uns. Ich benutze sie nur um dir den Download-Link zuzuschicken.</small>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitButton">Abschicken</button><br />
+          </form>
+          <iframe name="hiddenFrame" class="hide"></iframe>
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary" id="submitButton">Abschicken</button><br />
-    </form>
-    <iframe name="hiddenFrame" class="hide"></iframe>
-  </div>
-</div>
 
 {% endblock %}
