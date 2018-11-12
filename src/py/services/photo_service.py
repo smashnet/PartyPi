@@ -35,6 +35,8 @@ class PhotoService(object):
         item["thumburl"] = "/thumbnail/%s" % item["uuid"]
         # Add photourl
         item["photourl"] = "/photo/%s" % item["uuid"]
+      if len(res) == 0:
+        return None
       return res
 
   def imageExists(self, md5):

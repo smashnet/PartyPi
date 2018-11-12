@@ -12,14 +12,14 @@
     <div class="container">
 
       <div class="row">
+        {% if photos is defined %}
         {% for photo in photos %}
         <div class="col-md-4">
           <div class="card mb-4 shadow-sm">
-            <img class="img-thumbnail" src="{{ photo.thumburl }}" alt="Thumbnail">
+            <a href="{{ photo.photourl }}"><img class="img-thumbnail" src="{{ photo.thumburl }}" alt="Thumbnail"></a>
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <a type="button" class="btn btn-sm btn-outline-secondary" href="{{ photo.photourl }}">View</a>
                   <a type="button" class="btn btn-sm btn-outline-secondary" href="{{ photo.photourl }}" download>Download</a>
                 </div>
                 <small class="text-muted">Hochgeladen am:<br/>{{ photo.dateUploaded }}</small>
@@ -28,7 +28,13 @@
           </div>
         </div>
         {% endfor %}
-      </div>
+        </div>
+        {% else %}
+        </div>
+        <div class="text-muted text-center">
+          Bisher wurden noch keine Fotos hochgeladen.<br/>Neue Fotos kannst du <a href="/">hier hochladen!</a>
+        </div>
+        {% endif %}
     </div>
   </div>
 {% endblock %}
