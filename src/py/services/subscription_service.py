@@ -23,6 +23,18 @@ import common
 @cherrypy.expose
 class SubscriptionService(object):
 
+  @staticmethod
+  def getListOfAllSubscriptions(self):
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT * FROM subscribers")
+      res = common.DBtoDict(r)
+      for item in res:
+        # Add subscriberurl
+        item["url"] = "/subscription/%s" % item["uuid"]
+      if len(res) == 0:
+        return None
+      return res
+
   def mailExists(self, mail):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT * FROM subscribers WHERE mail=? LIMIT 1", (mail,))
@@ -30,11 +42,6 @@ class SubscriptionService(object):
         return False
       else:
         return True
-
-  def getAllSubscribers(self):
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers")
-      return common.DBtoDict(r)
 
   def getSingleSubscriber(self, uuid):
     with sqlite3.connect(config.DB_STRING) as c:

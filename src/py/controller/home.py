@@ -19,4 +19,14 @@ class HomeController(BaseController):
   @cherrypy.expose
   def index(self):
     template_vars = {"bodyclass": "class=main"}
+    template_vars["navlinks"] = [
+    {
+      "name": "Home",
+      "href": "/"
+    },
+    {
+      "name": "Fotos",
+      "href": "/overview"
+    }
+    ]
     return self.render_template("home/index.html", template_vars)

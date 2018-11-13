@@ -15,12 +15,17 @@ import cherrypy
 from controller.base import BaseController
 from services.photo_service import PhotoService
 
-class PhotosOverviewController(BaseController):
+class PhotosAdminController(BaseController):
 
   @cherrypy.expose
   def index(self):
     # Collect photo thumburls
     template_vars = {}
+    template_vars["title"] = {
+    "name": "PartyPi - Administration",
+    "href": "/admin"
+    }
+    # Set navbar links
     template_vars["navlinks"] = [
     {
       "name": "Home",
@@ -28,7 +33,22 @@ class PhotosOverviewController(BaseController):
     },
     {
       "name": "Fotos",
-      "href": "/overview"
+      "href": "/admin/photos"
+    },
+    {
+      "name": "Subscriptions",
+      "href": "/admin/aubscriptions"
+    }
+    ]
+    # Set admin area links# Set navbar links
+    template_vars["adminlinks"] = [
+    {
+      "name": "Fotos",
+      "href": "/admin/photos"
+    },
+    {
+      "name": "Subscriptions",
+      "href": "/admin/aubscriptions"
     }
     ]
     photos = PhotoService.getListOfAllPhotos()
@@ -38,4 +58,4 @@ class PhotosOverviewController(BaseController):
       for item in template_vars["photos"]:
         item["dateUploaded"] = item["dateUploaded"].split('.')[0]
     template_vars["bodyclass"] = "class=main"
-    return self.render_template("photos_overview/index.html", template_vars)
+    return self.render_template("photos_admin/index.html", template_vars)

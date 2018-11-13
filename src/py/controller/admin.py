@@ -19,4 +19,34 @@ class AdminController(BaseController):
   @cherrypy.expose
   def index(self):
     template_vars = {"bodyclass": "class=main"}
+    template_vars["title"] = {
+    "name": "PartyPi - Administration",
+    "href": "/admin"
+    }
+    # Set navbar links
+    template_vars["navlinks"] = [
+    {
+      "name": "Home",
+      "href": "/"
+    },
+    {
+      "name": "Fotos",
+      "href": "/admin/photos"
+    },
+    {
+      "name": "Subscriptions",
+      "href": "/admin/aubscriptions"
+    }
+    ]
+    # Set admin area links# Set navbar links
+    template_vars["adminlinks"] = [
+    {
+      "name": "Fotos",
+      "href": "/admin/photos"
+    },
+    {
+      "name": "Subscriptions",
+      "href": "/admin/aubscriptions"
+    }
+    ]
     return self.render_template("admin/index.html", template_vars)

@@ -28,6 +28,8 @@ from services.subscription_service import SubscriptionService
 from controller.home import HomeController
 from controller.admin import AdminController
 from controller.photos_overview import PhotosOverviewController
+from controller.photos_admin import PhotosAdminController
+from controller.subscriptions_admin import SubscriptionsAdminController
 
 class PartyPi(object):
 
@@ -46,7 +48,13 @@ class PartyPi(object):
     return c.index()
 
   @cherrypy.expose
-  def admin(self):
+  def admin(self, section=None):
+    if section == "photos":
+      c = PhotosAdminController()
+      return c.index()
+    if section == "subscriptions":
+      c = SubscriptionsAdminController()
+      return c.index()
     c = AdminController()
     return c.index()
 
