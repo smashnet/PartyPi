@@ -21,6 +21,7 @@
             <th scope="col">E-Mail</th>
             <th scope="col">IP</th>
             <th scope="col">Registriert am</th>
+            <th scope="col">Aktion</th>
           </tr>
         </thead>
         <tbody>
@@ -30,6 +31,7 @@
             <td>{{ sub.mail }}</td>
             <td>{{ sub.ip }}</td>
             <td>{{ sub.dateSubscribed }}</td>
+            <td><a type="button" class="btn btn-sm btn-outline-secondary" href="#" onclick="deleteData('{{ sub.url }}')">Delete</a></td>
           </tr>
           {% endfor %}
         </tbody>

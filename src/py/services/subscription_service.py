@@ -96,6 +96,6 @@ class SubscriptionService(object):
       return {"error": "No user provided for deletion"}
     else:
       with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("DELETE FROM subscribers WHERE userID=?", (str(userid),))
+        c.execute("DELETE FROM subscribers WHERE uuid=?", (str(userid),))
 
       return {"deleted": userid}
