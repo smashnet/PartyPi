@@ -37,20 +37,10 @@ class PhotosAdminController(BaseController):
     },
     {
       "name": "Subscriptions",
-      "href": "/admin/aubscriptions"
+      "href": "/admin/subscriptions"
     }
     ]
-    # Set admin area links# Set navbar links
-    template_vars["adminlinks"] = [
-    {
-      "name": "Fotos",
-      "href": "/admin/photos"
-    },
-    {
-      "name": "Subscriptions",
-      "href": "/admin/aubscriptions"
-    }
-    ]
+    
     photos = PhotoService.getListOfAllPhotos()
     if photos is not None:
       template_vars["photos"] = photos

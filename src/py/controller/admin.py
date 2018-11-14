@@ -35,7 +35,7 @@ class AdminController(BaseController):
     },
     {
       "name": "Subscriptions",
-      "href": "/admin/aubscriptions"
+      "href": "/admin/subscriptions"
     }
     ]
     # Set admin area links# Set navbar links
@@ -46,7 +46,7 @@ class AdminController(BaseController):
     },
     {
       "name": "Subscriptions",
-      "href": "/admin/aubscriptions"
+      "href": "/admin/subscriptions"
     }
     ]
     return self.render_template("admin/index.html", template_vars)

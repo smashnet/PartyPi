@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <section class="jumbotron text-center">
+    <div class="container">
+      <h1 class="jumbotron-heading">Registrierungen</h1>
+      <p class="lead text-muted">Hier siehst du eine Übersicht aller Leute die die Fotos haben wollen.<br/> Vergiss nicht den Link herumzuschicken ;)</p>
+      {% if subscriptions is defined %}
+      <a class="btn btn-primary my-2" href="mailto:?bcc={% for sub in subscriptions %} {{ sub.mail }},{% endfor %}">E-Mail Link</a>
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="album py-5 bg-light">
+    <div class="container">
+      {% if subscriptions is defined %}
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">UUID</th>
+            <th scope="col">E-Mail</th>
+            <th scope="col">IP</th>
+            <th scope="col">Registriert am</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in subscriptions %}
+          <tr>
+            <td>{{ sub.uuid }}</td>
+            <td>{{ sub.mail }}</td>
+            <td>{{ sub.ip }}</td>
+            <td>{{ sub.dateSubscribed }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="text-muted text-center">
+        Bisher hat sich niemand für den Empfang der Fotos registriert :(
+      </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

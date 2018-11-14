@@ -24,7 +24,7 @@ import common
 class SubscriptionService(object):
 
   @staticmethod
-  def getListOfAllSubscriptions(self):
+  def getListOfAllSubscriptions():
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT * FROM subscribers")
       res = common.DBtoDict(r)

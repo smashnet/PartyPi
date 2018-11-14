@@ -37,26 +37,16 @@ class SubscriptionsAdminController(BaseController):
     },
     {
       "name": "Subscriptions",
-      "href": "/admin/aubscriptions"
+      "href": "/admin/subscriptions"
     }
     ]
-    # Set admin area links# Set navbar links
-    template_vars["adminlinks"] = [
-    {
-      "name": "Fotos",
-      "href": "/admin/photos"
-    },
-    {
-      "name": "Subscriptions",
-      "href": "/admin/aubscriptions"
-    }
-    ]
-    # TODO: Change to subscription
-    photos = PhotoService.getListOfAllPhotos()
-    if photos is not None:
-      template_vars["photos"] = photos
+
+    # Get information from SubscriptionService
+    subs = SubscriptionService.getListOfAllSubscriptions()
+    if subs is not None:
+      template_vars["subscriptions"] = subs
       # Prune dateUploaded
-      for item in template_vars["photos"]:
-        item["dateUploaded"] = item["dateUploaded"].split('.')[0]
+      for item in template_vars["subscriptions"]:
+        item["dateSubscribed"] = item["dateSubscribed"].split('.')[0]
     template_vars["bodyclass"] = "class=main"
-    return self.render_template("photos_admin/index.html", template_vars)
+    return self.render_template("subscriptions_admin/index.html", template_vars)
