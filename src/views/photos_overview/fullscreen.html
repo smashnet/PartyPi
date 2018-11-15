@@ -1,0 +1,52 @@
+{% extends "layout_fullscreen.html" %}
+
+{% block content %}
+  <div class="container text-center">
+  {% if photos is defined %}
+  <div class="siema">
+    {% for photo in photos %}
+    <div><img class="img-thumbnail" src="{{ photo.thumburl }}/1024px" width="100%"></div>
+    {% endfor %}
+  </div>
+  {% else %}
+  Keine Bilder
+  {% endif %}
+  <a type="button" class="btn btn-outline-primary" href="/overview">Zurück zur Übersicht</a>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script type="text/javascript">
+    const mySiema = new Siema({
+      selector: '.siema',
+      duration: 200,
+      easing: 'ease-out',
+      perPage: 1,
+      {% if startIndex is defined %}startIndex: {{ startIndex }},{% else %}startIndex: 0,{% endif %}
+      draggable: true,
+      multipleDrag: true,
+      threshold: 20,
+      loop: false,
+      rtl: false,
+      onInit: () => {},
+      onChange: () => {},
+    });
+
+    var intervalID = setInterval(nextSlide, 6000);
+
+    document.addEventListener('keypress', (event) => {
+      if(event.key == "ArrowRight"){
+        nextSlide();
+      }else if(event.key == "ArrowLeft"){
+        prevSlide();
+      };
+    });
+
+    function nextSlide() {
+      mySiema.next();
+    }
+    function prevSlide() {
+      mySiema.prev();
+    }
+  </script>
+{% endblock %}

@@ -15,22 +15,12 @@ import cherrypy
 from controller.base import BaseController
 from services.photo_service import PhotoService
 
-class PhotosOverviewController(BaseController):
+class SlideshowController(BaseController):
 
   @cherrypy.expose
-  def index(self, mode, startIndex=0):
+  def index(self, startIndex=0):
     # Collect photo thumburls
     template_vars = {}
-    template_vars["navlinks"] = [
-    {
-      "name": "Home",
-      "href": "/"
-    },
-    {
-      "name": "Fotos",
-      "href": "/overview"
-    }
-    ]
     photos = PhotoService.getListOfAllPhotos()
     if photos is not None:
       template_vars["photos"] = photos
@@ -39,8 +29,4 @@ class PhotosOverviewController(BaseController):
       for item in template_vars["photos"]:
         item["dateUploaded"] = item["dateUploaded"].split('.')[0]
     template_vars["bodyclass"] = "class=main"
-
-    if mode == "fullscreen":
-      return self.render_template("photos_overview/fullscreen.html", template_vars)
-    else:
-      return self.render_template("photos_overview/index.html", template_vars)
+    return self.render_template("slideshow/index.html", template_vars)

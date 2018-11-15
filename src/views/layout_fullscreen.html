@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="minimal-ui, width=device-width, initial-scale=1, , maximum-scale=1, user-scalable=no">
+    <meta name="description" content="PartyPi - A photo upload web app to collect images to be instantly shown on screen">
+    <meta name="author" content="Nicolas Inden">
+    {% block head %}{% endblock %}
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body {{ bodyclass }}>
+
+    <main role="main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    {% block script %}{% endblock %}
+  </body>
+</html>
