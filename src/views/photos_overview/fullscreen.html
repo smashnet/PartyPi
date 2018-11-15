@@ -1,17 +1,22 @@
 {% extends "layout_fullscreen.html" %}
 
 {% block content %}
-  <div class="container text-center">
-  {% if photos is defined %}
-  <div class="siema">
-    {% for photo in photos %}
-    <div><img class="img-thumbnail" src="{{ photo.thumburl }}/1024px" width="100%"></div>
-    {% endfor %}
-  </div>
-  {% else %}
-  Keine Bilder
-  {% endif %}
-  <a type="button" class="btn btn-outline-primary" href="/overview">Zurück zur Übersicht</a>
+  <div class="album py-5 bg-light">
+    <div class="container text-center">
+    {% if photos is defined %}
+    <div class="siema">
+      {% for photo in photos %}
+      <div><img class="img-thumbnail" src="{{ photo.thumburl }}/1024px" width="100%"></div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="img-thumbnail text-muted text-center">
+      Bisher wurden noch keine Fotos hochgeladen.<br/>Neue Fotos kannst du <a href="/">hier hochladen!</a>
+    </div>
+    <hr>
+    {% endif %}
+    <a type="button" class="btn btn-outline-primary" href="/overview">Zurück zur Übersicht</a>
+    </div>
   </div>
 {% endblock %}
 
