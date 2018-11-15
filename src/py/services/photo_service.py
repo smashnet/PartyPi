@@ -88,16 +88,23 @@ class PhotoService(object):
     thumb_large.thumbnail(large)
     thumb_large.save(config.PHOTO_THUMBS_DIR + "/%s_1024px%s" %(fn, filext))
 
-  '''
-  def getSinglePhoto(self, photouuid):
+  def deleteAllPhotos(self):
+    # Delete photos from storage
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, filename_orig, content_type, md5, uploader, dateUploaded FROM files WHERE uuid=?", (photouuid,))
-      res = common.DBtoDict(r)
-      if len(res) > 0:
-        return res[0]
-      else:
-        return {"error": "UUID unknown"}
-  '''
+      r = c.execute("SELECT filename FROM files")
+      res = r.fetchall()
+      for filename in res:
+        try:
+          fn, filext = os.path.splitext(filename[0])
+          os.remove(config.PHOTO_DIR + "/%s" % filename[0])
+          os.remove(config.PHOTO_THUMBS_DIR + "/%s_128px%s" % (fn, filext))
+          os.remove(config.PHOTO_THUMBS_DIR + "/%s_512px%s" % (fn, filext))
+          os.remove(config.PHOTO_THUMBS_DIR + "/%s_1024px%s" % (fn, filext))
+        except FileNotFoundError:
+          pass
+    # Delete photos from DB
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM files")
 
   @cherrypy.tools.accept(media='application/json')
   def GET(self, photouuid=None):
@@ -158,24 +165,32 @@ class PhotoService(object):
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
-  def DELETE(self, photoid):
-    if len(photoid) == 0:
+  def DELETE(self, photouuid):
+    if len(photouuid) == 0:
       return {"error": "No photos provided for deletion"}
     else:
-      # Delete photos from storage
-      with sqlite3.connect(config.DB_STRING) as c:
-        r = c.execute("SELECT filename FROM files WHERE uuid=?", (str(photoid),))
-        filename = r.fetchone()
-        if filename is None:
-          return {"error": "The photo with the provided id does not exist"}
-      try:
-        os.remove(config.PHOTO_DIR + "/%s" % str(filename[0]))
-      except FileNotFoundError:
-        print("File %s already gone" % str(filename[0]))
+      if photouuid == "all":
+        self.deleteAllPhotos()
+      else:
+        # Check if is valid uuid
+        try:
+          uuid.UUID(photouuid, version=4)
+        except ValueError:
+          return "Not a valid uuid"
+        # Delete photos from storage
+        with sqlite3.connect(config.DB_STRING) as c:
+          r = c.execute("SELECT filename FROM files WHERE uuid=?", (str(photouuid),))
+          filename = r.fetchone()
+          if filename is None:
+            return {"error": "The photo with the provided id does not exist"}
+        try:
+          os.remove(config.PHOTO_DIR + "/%s" % str(filename[0]))
+        except FileNotFoundError:
+          print("File %s already gone" % str(filename[0]))
 
-      # Delete photos from DB
-      with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("DELETE FROM files WHERE uuid=?", (str(photoid),))
+        # Delete photos from DB
+        with sqlite3.connect(config.DB_STRING) as c:
+          c.execute("DELETE FROM files WHERE uuid=?", (str(photouuid),))
 
 
-      return {"deleted": photoid}
+        return {"deleted": photouuid}
